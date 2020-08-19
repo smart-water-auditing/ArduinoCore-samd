@@ -62,6 +62,10 @@ void TwoWire::end() {
   sercom->disableWIRE();
 }
 
+void setTimeout(uint32_t _timeout) {
+  sercom->setTimeout(_timeout);
+}
+
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 {
   if(quantity == 0)

@@ -189,6 +189,7 @@ class SERCOM
 		void initSlaveWIRE(uint8_t address, bool enableGeneralCall = false) ;
 		void initMasterWIRE(uint32_t baudrate) ;
 
+		void setTimeout( uint32_t _timeout ) ;
 		void resetWIRE( void ) ;
 		void enableWIRE( void ) ;
     void disableWIRE( void );
@@ -215,6 +216,7 @@ class SERCOM
 
 	private:
 		Sercom* sercom;
+		uint32_t timeoutDelay;
 		uint8_t calculateBaudrateSynchronous(uint32_t baudrate) ;
 		uint32_t division(uint32_t dividend, uint32_t divisor) ;
 		void initClockNVIC( void ) ;

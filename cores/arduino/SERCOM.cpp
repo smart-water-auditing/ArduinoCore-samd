@@ -459,6 +459,14 @@ void SERCOM::initMasterWIRE( uint32_t baudrate )
 
   // Synchronous arithmetic baudrate
   sercom->I2CM.BAUD.bit.BAUD = SystemCoreClock / ( 2 * baudrate) - 5 - (((SystemCoreClock / 1000000) * WIRE_RISE_TIME_NANOSECONDS) / (2 * 1000));
+
+  // Reset timeoutDelay
+  timeoutDelay = 0;
+}
+
+void SERCOM::setTimeout( uint32_t _timeout )
+{
+	timeoutDelay = _timeout;
 }
 
 void SERCOM::prepareNackBitWIRE( void )
@@ -564,12 +572,25 @@ bool SERCOM::sendDataMasterWIRE(uint8_t data)
   //Send data
   sercom->I2CM.DATA.bit.DATA = data;
 
+  uint32_t startingTime = millis();
   //Wait transmission successful
   while(!sercom->I2CM.INTFLAG.bit.MB) {
 
     // If a bus error occurs, the MB bit may never be set.
     // Check the bus error bit and bail if it's set.
     if (sercom->I2CM.STATUS.bit.BUSERR) {
+      return false;
+    }
+
+    // If timeoutDelay is set and time_passed > timeoutDelay, break the loop
+    if ( timeoutDelay && (millis()-startingTime)>=timeOutDelay ) {
+      // Setting bus idle mode
+      sercom->I2CM.STATUS.bit.BUSSTATE = 1 ;
+
+      while ( sercom->I2CM.SYNCBUSY.bit.SYSOP != 0 )
+      {
+        // Wait the SYSOP bit from SYNCBUSY coming back to 0
+      }
       return false;
     }
   }
